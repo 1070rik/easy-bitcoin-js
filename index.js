@@ -6,6 +6,7 @@
         GET_RAW_TX: 'https://blockchain.info/pt/rawtx/$txHash',
         PUSH_TX: 'https://blockchain.info/pt/pushtx',
         DECODE_TX: 'https://blockchain.info/pt/decode-tx',
+        CURRENT_BLOCK: 'https://blockchain.info/latestblock',
     };
 
     var ERR_MESSAGES = {
@@ -83,6 +84,45 @@
                 deffered.resolve(transaction);
             }
         });
+        return deffered.promise;
+    }
+
+    exports.getCurrentBlock = function() {
+        var deffered = Q.defer();
+        request.get({
+            url: BLOCKCHAIN_API.CURRENT_BLOCK,
+            json: true
+        }, function(err, httpResponse, body) {
+            if(err) {
+                deffered.reject(err);
+            } else {
+                var block  = body.height;
+                deffered.resolve(block);
+            }
+        });
+        return deffered.promise;
+    }
+
+    exports.getConfirmations = function(txHash) {
+        var deffered = Q.defer();
+        var block_height =  0;
+        var current_block = 0;
+        exports.getTransaction(txHash)
+            .then(function(transactionResult) {
+                block_height = transactionResult.block_height;
+                exports.getCurrentBlock()
+                    .then(function(blockNum) {
+                        current_block = blockNum;
+                        var confirmations = Math.abs(current_block - block_height + 1);
+                        deffered.resolve(confirmations);
+                    })
+                    .catch(function(error) {
+                        deffered.reject(err);
+                    })
+            })
+            .catch(function(error) {
+                deffered.reject(err);
+            });
         return deffered.promise;
     }
 

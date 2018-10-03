@@ -71,6 +71,28 @@ describe('easy-bitcoin-js', function() {
         it('should return a fulfilled transaction object for a valid address');
     });
 
+    describe('getCurrentBlock', function() {
+        it('should return a block number', function() {
+            return easybtc.getCurrentBlock()
+                .then(function(result) {
+                    expect(result)
+                        .to
+                        .be.a('number')
+                });
+        });
+    });
+
+    describe('getConfirmations', function() {
+        it('should return the amount of confirmations for a transaction', function() {
+            return easybtc.getConfirmations("d4b2e1d978c338cf6b85bfb380dc0bef8b11d0663b9c3c5adee5b912c6ae7ff4")
+                .then(function(result) {
+                    expect(result)
+                        .to
+                        .be.a('number')
+                });
+        });
+    });
+
     describe('decodeTransaction', function() {
         it('should return null for an invalid hex script');
         it('should return a fulfilled transaction object for a valid hex script');
